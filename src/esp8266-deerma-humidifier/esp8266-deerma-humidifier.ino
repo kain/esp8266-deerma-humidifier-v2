@@ -15,12 +15,12 @@ Firmware documentation: https://iot.mi.com/new/doc/embedded-development/wifi/mod
 
 #define MQTT_CONN_RETRY_INTERVAL 60000
 #define MQTT_STATUS_TIMEOUT 60000
+#define BOARD_PREFIX "esp8266-deerma-humidifier"
 
 SoftwareSerial SerialDebug(3, 1);
 
 unsigned long currentTime = millis();
 
-const char *BOARD_PREFIX = "esp8266-deerma-humidifier";
 char BOARD_IDENTIFIER[64];
 char mqtt_server[64];
 char mqtt_username[64];
@@ -33,6 +33,14 @@ char MQTT_TOPIC_STATUS[128];
 char MQTT_TOPIC_STATE[128];
 char MQTT_TOPIC_COMMAND[128];
 char MQTT_TOPIC_DEBUG[128];
+
+char MQTT_TOPIC_AUTOCONF_HUMIDITY_SENSOR[128];
+char MQTT_TOPIC_AUTOCONF_TEMPERATURE_SENSOR[128];
+char MQTT_TOPIC_AUTOCONF_WIFI_SENSOR[128];
+char MQTT_TOPIC_AUTOCONF_WATER_TANK_SENSOR[128];
+char MQTT_TOPIC_AUTOCONF_HUMIDIFIER[128];
+char MQTT_TOPIC_AUTOCONF_SOUND_SWITCH[128];
+char MQTT_TOPIC_AUTOCONF_LED_SWITCH[128];
 
 WiFiManager wifiManager;
 WiFiClient wifiClient;
@@ -200,13 +208,21 @@ void setupGeneric()
 
   pinMode(FLASH_PIN, INPUT_PULLUP);
 
-  snprintf(BOARD_IDENTIFIER, sizeof(BOARD_IDENTIFIER), "%s-%X", BOARD_PREFIX, ESP.getChipId());
+  snprintf(BOARD_IDENTIFIER, sizeof(BOARD_IDENTIFIER), "HUMIDIFIER-%X", ESP.getChipId());
   SerialDebug.printf("Board Identifier: %s\n", BOARD_IDENTIFIER);
 
-  snprintf(MQTT_TOPIC_STATUS, 127, "%s/status", BOARD_IDENTIFIER);
-  snprintf(MQTT_TOPIC_STATE, 127, "%s/state", BOARD_IDENTIFIER);
-  snprintf(MQTT_TOPIC_COMMAND, 127, "%s/command", BOARD_IDENTIFIER);
-  snprintf(MQTT_TOPIC_DEBUG, 127, "%s/debug", BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_STATUS, 127, "%s/%s/status", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_STATE, 127, "%s/%s/state", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_COMMAND, 127, "%s/%s/command", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_DEBUG, 127, "%s/%s/debug", BOARD_PREFIX, BOARD_IDENTIFIER);
+
+  snprintf(MQTT_TOPIC_AUTOCONF_HUMIDITY_SENSOR, 127, "homeassistant/sensor/%s/%s_humidity/config", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_AUTOCONF_TEMPERATURE_SENSOR, 127, "homeassistant/sensor/%s/%s_temperature/config", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_AUTOCONF_WIFI_SENSOR, 127, "homeassistant/sensor/%s/%s_wifi/config", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_AUTOCONF_WATER_TANK_SENSOR, 127, "homeassistant/sensor/%s/%s_water_tank/config", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_AUTOCONF_HUMIDIFIER, 127, "homeassistant/humidifier/%s/%s_humidifier/config", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_AUTOCONF_SOUND_SWITCH, 127, "homeassistant/switch/%s/%s_sound/config", BOARD_PREFIX, BOARD_IDENTIFIER);
+  snprintf(MQTT_TOPIC_AUTOCONF_LED_SWITCH, 127, "homeassistant/switch/%s/%s_led/config", BOARD_PREFIX, BOARD_IDENTIFIER);
 
   loadConfig();
 }
